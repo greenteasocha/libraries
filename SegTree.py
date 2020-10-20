@@ -1,9 +1,10 @@
+import time
 INF = float("inf")
 MOD = 998244353
 
 
 class LazySegmentTree():
-    def __init__(self, n):
+    def __init__(self, n, arr=[]):
         # define size as power of two
         self.size = 1
         while (n):
@@ -11,8 +12,11 @@ class LazySegmentTree():
             n //= 2
 
         # initialize values
-        self.val = [self._unit_val()] * (self.size * 2 + 1)
-        self.lazy = [self._unit_lazy()] * (self.size * 2 + 1)
+        if arr:
+            self._init_arr(arr)
+        else:
+            self.val = [self._unit_val()] * (self.size * 2 + 1)
+            self.lazy = [self._unit_lazy()] * (self.size * 2 + 1)
 
         # range size for each node
         self.width = [0]  # 1-index
@@ -24,8 +28,10 @@ class LazySegmentTree():
 
         return
 
-    def init_arr(self, arr):
+    def _init_arr(self, arr):
+        self.val = [self._unit_val()] * (self.size * 2 + 1)
         for i, val in enumerate(arr):
+            # self.val = [self._unit_val()] * (self.size + 1) + arr
             self.val[i + self.size] = val
         # self.val = [self._unit_val()] * (self.size + 1) + arr
         self.lazy = [self._unit_lazy()] * (self.size * 2 + 1)
@@ -49,13 +55,17 @@ class LazySegmentTree():
     def _distribute(self, k, lazy_val):
         # self.lazy[k * 2] += lazy_val // 2
         # self.lazy[k * 2 + 1] += lazy_val // 2
-        lazy1 = self.lazy[k * 2]
-        self.lazy[k * 2] = [(lazy1[0] * lazy_val[0]),
-                            (lazy1[1] * lazy_val[0] + lazy_val[1] // 2)]
+        l00, l01 = lazy_val
+        l10, l11 = self.lazy[k * 2]
+        l20, l21 = self.lazy[k * 2 + 1]
 
-        lazy2 = self.lazy[k * 2 + 1]
-        self.lazy[k * 2 + 1] = [(lazy2[0] * lazy_val[0]),
-                                (lazy2[1] * lazy_val[0] + lazy_val[1] // 2)]
+        # lazy1 = self.lazy[k * 2]
+        self.lazy[k * 2] = [(l10 * l00),
+                            (l11 * l00 + l01 // 2)]
+
+        # lazy2 = self.lazy[k * 2 + 1]
+        self.lazy[k * 2 + 1] = [(l20 * l00),
+                                (l21 * l00 + l01 // 2)]
 
     def _unit_val(self):
         # initial(unit) value
@@ -138,12 +148,12 @@ class LazySegmentTree():
                 # self.lazy[r] += v * self.width[r]
                 self.lazy[r] = [
                     self.lazy[r][0] * v[0],
-                    (self.lazy[r][1] * v[0] + v[1]) * self.width[r]
+                    self.lazy[r][1] * v[0] + v[1] * self.width[r]
                 ]
             if l & 1:
                 self.lazy[l] = [
                     self.lazy[l][0] * v[0],
-                    (self.lazy[l][1] * v[0] + v[1]) * self.width[l]
+                    self.lazy[l][1] * v[0] + v[1] * self.width[l]
                 ]
                 l += 1
 
@@ -174,26 +184,36 @@ class LazySegmentTree():
             self._single_update(i)
         return
 
+    def update_all2(self):
+        for i in range(1, self.size * 2):
+            self._unlazy(i)
+
+        for i in range(self.size * 2 - 1, -1, -1):
+            self._single_update(i)
+        return
+
 
 def main():
     n, m = list(map(int, input().split()))
-    st = LazySegmentTree(n)
-    st.init_arr(list(map(int, input().split())))
+    st = LazySegmentTree(n, list(map(int, input().split())))
+    # st.init_arr(list(map(int, input().split())))
+    sec = time.time()
 
+    ans = []
     for i in range(m):
-        # st.update_all()
         q = list(map(int, input().split()))
         if q[0] == 0:
 
             st.range_update(q[1], q[2], [q[3], q[4]])
-            st.update_all()
+            # st.update_all2()
         else:
 
             v = st.range_query(q[1], q[2])
-            print(v % MOD)
-        # st.show_val()
-        # st.show_lazy()
+            ans.append(v % MOD)
 
+    print(*ans, sep="\n")
+
+    # print(time.time() - sec)
     return 0
 
 
