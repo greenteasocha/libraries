@@ -107,14 +107,14 @@ class LazySegmentTree():
         l += self.size
         r += self.size
 
-        ret = self._unit_val()
+        ret = 0
         while l < r:
             if r & 1:
                 r -= 1
-                # self._unlazy(r)
+                self._unlazy(r)
                 ret = self._operation(ret, self._resolve(r))
             if l & 1:
-                # self._unlazy(l)
+                self._unlazy(l)
                 ret = self._operation(ret, self._resolve(l))
                 l += 1
 
@@ -179,16 +179,11 @@ def main():
     n, m = list(map(int, input().split()))
     st = LazySegmentTree(n)
     st.init_arr(list(map(int, input().split())))
-
     for i in range(m):
-        # st.update_all()
         q = list(map(int, input().split()))
         if q[0] == 0:
-
             st.range_update(q[1], q[2], [q[3], q[4]])
-            st.update_all()
         else:
-
             v = st.range_query(q[1], q[2])
             print(v % MOD)
         # st.show_val()
