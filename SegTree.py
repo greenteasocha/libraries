@@ -17,13 +17,6 @@ class LazySegmentTree():
             self.size <<= 1
             n //= 2
 
-        # initialize values
-        if arr:
-            self._init_arr(arr)
-        else:
-            self.val = [self.uv()] * (self.size * 2 + 1)
-            self.lazy = [self.ux()] * (self.size * 2 + 1)
-
         # range size for each node
         self.width = [0]  # 1-index
         width = self.size
@@ -32,12 +25,18 @@ class LazySegmentTree():
                 self.width.append(width)
             width //= 2
 
+        # initialize values
+        if arr:
+            self._init_arr(arr)
+        else:
+            self.val = [self.uv()] * (self.size * 2 + 1)
+            self.lazy = [self.ux()] * (self.size * 2 + 1)
+
         return
 
     def _init_arr(self, arr):
         self.val = [self.uv()] * (self.size * 2 + 1)
         for i, val in enumerate(arr):
-            # self.val = [self._unit_val()] * (self.size + 1) + arr
             self.val[i + self.size] = val
         self.lazy = [self.ux()] * (self.size * 2 + 1)
 
@@ -56,7 +55,7 @@ class LazySegmentTree():
         # ↑ (?)
 
         # return self.val[k] + self.lazy[k]
-        return (self.val[k] * self.lazy[k][0] + self.lazy[k][1])
+        return (self.val[k] * self.lazy[k][0] + self.lazy[k][1] * self.width[k])
 
     def _distribute(self, k, lazy_val):
         # self.lazy[k * 2] += lazy_val // 2
@@ -72,15 +71,6 @@ class LazySegmentTree():
         # lazy2 = self.lazy[k * 2 + 1]
         self.lazy[k * 2 + 1] = [(l20 * l00),
                                 (l21 * l00 + l01 // 2)]
-
-    def _unit_val(self):
-        # initial(unit) value
-        return 0
-
-    def _unit_lazy(self):
-        # initial(unit) value of lazy
-        # return 0
-        return [1, 0]
 
     def _get_update_indices(self, l, r):
         # descending order
@@ -104,7 +94,7 @@ class LazySegmentTree():
         if k < self.size:
             l_val = self._resolve(k * 2)
             r_val = self._resolve(k * 2 + 1)
-            self.val[k] = self._operation(l_val, r_val)
+            self.val[k] = self.vv(l_val, r_val)
 
     def _unlazy(self, k):
         self.val[k] = self._resolve(k)
@@ -112,26 +102,38 @@ class LazySegmentTree():
             lazy_val = self.lazy[k]
             self._distribute(k, lazy_val)
 
-        self.lazy[k] = self._unit_lazy()
+        self.lazy[k] = self.ux()
 
     def range_query(self, l, r):
         # resolve lazy values in top-down order
         for k in reversed(self._get_update_indices(l, r)):
-            self._unlazy(k)
+            # ====
+            k_val, k_lazy, k_width = self.val[k], self.lazy[k], self.width[k]
+            self.val[k] = self.xv(k_val, k_lazy, k_width)
+            if k < self.size:
+                lazy_val = self.lazy[k]
+                # ====
+                c_lazy1 = self.lazy[k * 2]
+                self.lazy[k * 2] = self.xx(k_lazy, c_lazy1)
+
+                c_lazy2 = self.lazy[k * 2 + 1]
+                self.lazy[k * 2 + 1] = self.xx(k_lazy, c_lazy2)
+                # ====
+
+            self.lazy[k] = self.ux()
+            # ====
 
         # same as default segment tree query
         l += self.size
         r += self.size
 
-        ret = self._unit_val()
+        ret = self.uv()
         while l < r:
             if r & 1:
                 r -= 1
-                # self._unlazy(r)
-                ret = self._operation(ret, self._resolve(r))
+                ret = self.vv(ret, self._resolve(r))
             if l & 1:
-                # self._unlazy(l)
-                ret = self._operation(ret, self._resolve(l))
+                ret = self.vv(ret, self._resolve(l))
                 l += 1
 
             l >>= 1
@@ -143,7 +145,19 @@ class LazySegmentTree():
         # resolve lazy values in top-down order
         update_indices = self._get_update_indices(l, r)
         for k in reversed(update_indices):
-            self._unlazy(k)
+            k_val, k_lazy, k_width = self.val[k], self.lazy[k], self.width[k]
+            self.val[k] = self.xv(k_val, k_lazy, k_width)
+            if k < self.size:
+                lazy_val = self.lazy[k]
+                # ====
+                c_lazy1 = self.lazy[k * 2]
+                self.lazy[k * 2] = self.xx(k_lazy, c_lazy1)
+
+                c_lazy2 = self.lazy[k * 2 + 1]
+                self.lazy[k * 2 + 1] = self.xx(k_lazy, c_lazy2)
+                # ====
+
+            self.lazy[k] = self.ux()
 
         # set lazy values
         l += self.size
@@ -152,15 +166,11 @@ class LazySegmentTree():
             if r & 1:
                 r -= 1
                 # self.lazy[r] += v * self.width[r]
-                self.lazy[r] = [
-                    self.lazy[r][0] * v[0],
-                    self.lazy[r][1] * v[0] + v[1] * self.width[r]
-                ]
+                c_lazy = self.lazy[r]
+                self.lazy[r] = self.xx(v, c_lazy)
             if l & 1:
-                self.lazy[l] = [
-                    self.lazy[l][0] * v[0],
-                    self.lazy[l][1] * v[0] + v[1] * self.width[l]
-                ]
+                c_lazy = self.lazy[l]
+                self.lazy[l] = self.xx(v, c_lazy)
                 l += 1
 
             l >>= 1
@@ -214,7 +224,7 @@ def main():
         # (lazy, lazy) => lazy
         return [
             (p_lazy[0] * c_lazy[0]) % MOD,
-            (c_lazy[1] * p_lazy[0] * p_lazy[1]) % MOD
+            (p_lazy[0] * c_lazy[1] + p_lazy[1]) % MOD
         ]
 
     def uv():
@@ -227,7 +237,6 @@ def main():
 
     arr = list(map(int, input().split()))
     st = LazySegmentTree(n, uv, ux, vv, xv, xx, arr)
-    # st.init_arr(list(map(int, input().split())))
     sec = time.time()
 
     ans = []
@@ -241,7 +250,7 @@ def main():
 
     print(*ans, sep="\n")
 
-    print(time.time() - sec)
+    # print(time.time() - sec)
     return 0
 
 
