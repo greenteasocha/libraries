@@ -4,7 +4,13 @@ MOD = 998244353
 
 
 class LazySegmentTree():
-    def __init__(self, n, arr=[]):
+    def __init__(self, n, uv, ux, vv, xv, xx, arr=[]):
+        self.uv = uv  # unit of val
+        self.ux = ux  # unit of lazy
+        self.vv = vv  # function (v, v) => v
+        self.xv = xv  # function (x, v) => v
+        self.xx = xx  # function (x, x) => x
+
         # define size as power of two
         self.size = 1
         while (n):
@@ -15,8 +21,8 @@ class LazySegmentTree():
         if arr:
             self._init_arr(arr)
         else:
-            self.val = [self._unit_val()] * (self.size * 2 + 1)
-            self.lazy = [self._unit_lazy()] * (self.size * 2 + 1)
+            self.val = [self.uv()] * (self.size * 2 + 1)
+            self.lazy = [self.ux()] * (self.size * 2 + 1)
 
         # range size for each node
         self.width = [0]  # 1-index
@@ -29,13 +35,13 @@ class LazySegmentTree():
         return
 
     def _init_arr(self, arr):
-        self.val = [self._unit_val()] * (self.size * 2 + 1)
+        self.val = [self.uv()] * (self.size * 2 + 1)
         for i, val in enumerate(arr):
             # self.val = [self._unit_val()] * (self.size + 1) + arr
             self.val[i + self.size] = val
-        # self.val = [self._unit_val()] * (self.size + 1) + arr
-        self.lazy = [self._unit_lazy()] * (self.size * 2 + 1)
-        self.update_all()
+        self.lazy = [self.ux()] * (self.size * 2 + 1)
+
+        self.ascend_all_val()
 
     def _operation(self, l_val, r_val):
         # ex.
@@ -133,7 +139,7 @@ class LazySegmentTree():
 
         return ret
 
-    def range_update(self, l, r, v):
+    def range_update(self, l, r, *v):
         # resolve lazy values in top-down order
         update_indices = self._get_update_indices(l, r)
         for k in reversed(update_indices):
@@ -184,9 +190,9 @@ class LazySegmentTree():
             self._single_update(i)
         return
 
-    def update_all2(self):
-        for i in range(1, self.size * 2):
-            self._unlazy(i)
+    def ascend_all_val(self):
+        # for i in range(1, self.size * 2):
+        #     self._unlazy(i)
 
         for i in range(self.size * 2 - 1, -1, -1):
             self._single_update(i)
@@ -195,25 +201,47 @@ class LazySegmentTree():
 
 def main():
     n, m = list(map(int, input().split()))
-    st = LazySegmentTree(n, list(map(int, input().split())))
+
+    def vv(l_val, r_val):
+        # (val, val) => val
+        return (l_val + r_val) % MOD
+
+    def xv(val, lazy, range_size):
+        # (val, lazy) => val
+        return (val * lazy[0] + lazy[1] * range_size) % MOD
+
+    def xx(p_lazy, c_lazy):
+        # (lazy, lazy) => lazy
+        return [
+            (p_lazy[0] * c_lazy[0]) % MOD,
+            (c_lazy[1] * p_lazy[0] * p_lazy[1]) % MOD
+        ]
+
+    def uv():
+        # initial(unit) value
+        return 0
+
+    def ux():
+        # initial(unit) lazy
+        return [1, 0]
+
+    arr = list(map(int, input().split()))
+    st = LazySegmentTree(n, uv, ux, vv, xv, xx, arr)
     # st.init_arr(list(map(int, input().split())))
     sec = time.time()
 
     ans = []
     for i in range(m):
-        q = list(map(int, input().split()))
-        if q[0] == 0:
-
-            st.range_update(q[1], q[2], [q[3], q[4]])
-            # st.update_all2()
+        q, *param = list(map(int, input().split()))
+        if q == 0:
+            st.range_update(*param)
         else:
-
-            v = st.range_query(q[1], q[2])
+            v = st.range_query(*param)
             ans.append(v % MOD)
 
     print(*ans, sep="\n")
 
-    # print(time.time() - sec)
+    print(time.time() - sec)
     return 0
 
 
