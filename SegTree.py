@@ -17,13 +17,7 @@ class LazySegmentTree():
             self.size <<= 1
             n //= 2
 
-        # range size for each node
-        self.width = [0]  # 1-index
-        width = self.size
-        while width:
-            for i in range(self.size // width):
-                self.width.append(width)
-            width //= 2
+        self.lv = self.size.bit_length()
 
         # initialize values
         if arr:
@@ -33,6 +27,9 @@ class LazySegmentTree():
             self.lazy = [self.ux()] * (self.size << 1 | 1)
 
         return
+
+    def width(self, k):
+        return 1 << (self.lv - k.bit_length())
 
     def _init_arr(self, arr):
         self.val = [self.uv()] * (self.size << 1 | 1)
@@ -49,7 +46,7 @@ class LazySegmentTree():
         # ↑ (?)
 
         # return self.val[k] + self.lazy[k]
-        return (self.val[k] * self.lazy[k][0] + self.lazy[k][1] * self.width[k])
+        return (self.val[k] * self.lazy[k][0] + self.lazy[k][1] * self.width(k))
 
     def _get_update_indices(self, l, r, order='descend'):
         # descending order
@@ -60,27 +57,30 @@ class LazySegmentTree():
 
         # lm = (l // (l & -l))
         # rm = (r // (r & -r))
-        if order == 'descend':
-            for i in range(blen + 1):
-                # while l:
-                # if r <= rm:
-                ret.append(r >> i)
-                # if l <= lm:
-                ret.append(l >> i)
 
-                # l //= 2
-                # r //= 2
-            return ret
+        for i in range(blen + 1):
+            # while l:
+            # if r <= rm:
+            ret.append(r >> i)
+            # if l <= lm:
+            ret.append(l >> i)
 
-        elif order == "ascend":
-            for i in range(blen - 1, -1, -1):
-                ret.append(r >> i)
-                ret.append(l >> i)
+            # l //= 2
+            # r //= 2
+        return ret
 
-            return ret
+    def _get_update_indices_rev(self, l, r):
+        # descending order
+        l += self.size
+        r += self.size - 1
+        blen = r.bit_length()
+        ret = []
 
-        else:
-            assert 0, "invalid order."
+        for i in range(blen - 1, -1, -1):
+            ret.append(r >> i)
+            ret.append(l >> i)
+
+        return ret
 
     def _single_update(self, k):
         if k < self.size:
@@ -89,13 +89,11 @@ class LazySegmentTree():
 
             self.val[k] = self.vv(l_val, r_val)
 
-    def range_query(self, l, r):
-        # resolve lazy values in top-down order
-        update_indices = self._get_update_indices(l, r, "descend")
-        revupdate_indices = self._get_update_indices(l, r, "ascend")
+    def _descend(self, l, r):
+        revupdate_indices = self._get_update_indices_rev(l, r)
         for k in revupdate_indices:
-            k_val, k_lazy, k_width = self.val[k], self.lazy[k], self.width[k]
-            self.val[k] = self.xv(k_val, k_lazy, k_width)
+            k_val, k_lazy = self.val[k], self.lazy[k]
+            self.val[k] = self.xv(k_val, k_lazy, k, self.lv)
             if k < self.size:
                 lazy_val = self.lazy[k]
 
@@ -107,6 +105,9 @@ class LazySegmentTree():
 
             self.lazy[k] = self.ux()
 
+    def range_query(self, l, r):
+        # resolve lazy values in top-down order
+        self._descend(l, r)
         # same as default segment tree query
         l += self.size
         r += self.size
@@ -127,21 +128,9 @@ class LazySegmentTree():
 
     def range_update(self, l, r, *v):
         # resolve lazy values in top-down order
-        update_indices = self._get_update_indices(l, r, "descend")
-        revupdate_indices = self._get_update_indices(l, r, "ascend")
-        for k in revupdate_indices:
-            k_val, k_lazy, k_width = self.val[k], self.lazy[k], self.width[k]
-            self.val[k] = self.xv(k_val, k_lazy, k_width)
-            if k < self.size:
-                lazy_val = self.lazy[k]
+        self._descend(l, r)
 
-                c_lazy1 = self.lazy[k << 1]
-                self.lazy[k << 1] = self.xx(k_lazy, c_lazy1)
-
-                c_lazy2 = self.lazy[k << 1 | 1]
-                self.lazy[k << 1 | 1] = self.xx(k_lazy, c_lazy2)
-
-            self.lazy[k] = self.ux()
+        update_indices = self._get_update_indices(l, r)
 
         # set lazy values
         l += self.size
@@ -162,8 +151,13 @@ class LazySegmentTree():
         # update real value in bottom-up order
         for k in update_indices:
             if k < self.size:
-                l_val = self._resolve(k << 1)
-                r_val = self._resolve(k << 1 | 1)
+                # l_val = self._resolve(k << 1)
+                l_idx, r_idx = k << 1, k << 1 | 1
+                l_val = self.xv(self.val[l_idx],
+                                self.lazy[l_idx], l_idx, self.lv)
+                # r_val = self._resolve(k << 1 | 1)
+                r_val = self.xv(self.val[r_idx],
+                                self.lazy[r_idx], r_idx, self.lv)
 
                 self.val[k] = self.vv(l_val, r_val)
 
@@ -192,9 +186,9 @@ def main():
         # (val, val) => val
         return (l_val + r_val) % MOD
 
-    def xv(val, lazy, range_size=1):
+    def xv(val, lazy, k, lv):
         # (val, lazy) => val
-        return (val * lazy[0] + lazy[1] * range_size) % MOD
+        return (val * lazy[0] + (lazy[1] << (lv - k.bit_length()))) % MOD
 
     def xx(p_lazy, c_lazy):
         # (lazy, lazy) => lazy
@@ -209,7 +203,7 @@ def main():
 
     def ux():
         # initial(unit) lazy
-        return [1, 0]
+        return 1
 
     arr = list(map(int, input().split()))
     st = LazySegmentTree(n, uv, ux, vv, xv, xx, arr)
@@ -226,7 +220,7 @@ def main():
 
     print(*ans, sep="\n")
 
-    # print(time.time() - sec)
+    print(time.time() - sec)
     return 0
 
 
