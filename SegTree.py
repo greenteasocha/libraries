@@ -46,9 +46,10 @@ class LazySegmentTree():
         # ↑ (?)
 
         # return self.val[k] + self.lazy[k]
-        return (self.val[k] * self.lazy[k][0] + self.lazy[k][1] * self.width(k))
+        l0, l1 = self.lazy[k] >> 32,  self.lazy[k] % (1 << 32)
+        return (self.val[k] * l0 + (l1 << (self.lv - k.bit_length()))) % MOD
 
-    def _get_update_indices(self, l, r, order='descend'):
+    def _get_update_indices(self, l, r):
         # descending order
         l += self.size
         r += self.size - 1
@@ -126,7 +127,7 @@ class LazySegmentTree():
 
         return ret
 
-    def range_update(self, l, r, *v):
+    def range_update(self, l, r, v):
         # resolve lazy values in top-down order
         self._descend(l, r)
 
@@ -188,14 +189,18 @@ def main():
 
     def xv(val, lazy, k, lv):
         # (val, lazy) => val
-        return (val * lazy[0] + (lazy[1] << (lv - k.bit_length()))) % MOD
+        l0, l1 = lazy >> 32, lazy % (1 << 32)
+        return (val * l0 + (l1 << (lv - k.bit_length()))) % MOD
 
     def xx(p_lazy, c_lazy):
         # (lazy, lazy) => lazy
-        return [
-            (p_lazy[0] * c_lazy[0]) % MOD,
-            (p_lazy[0] * c_lazy[1] + p_lazy[1]) % MOD
-        ]
+        pl0, pl1 = p_lazy >> 32, p_lazy % (1 << 32)
+        cl0, cl1 = c_lazy >> 32, c_lazy % (1 << 32)
+
+        r0 = (pl0 * cl0) % MOD
+        r1 = (pl0 * cl1 + pl1) % MOD
+
+        return (r0 << 32) + r1
 
     def uv():
         # initial(unit) value
@@ -203,7 +208,7 @@ def main():
 
     def ux():
         # initial(unit) lazy
-        return 1
+        return 1 << 32
 
     arr = list(map(int, input().split()))
     st = LazySegmentTree(n, uv, ux, vv, xv, xx, arr)
@@ -213,7 +218,11 @@ def main():
     for i in range(m):
         q, *param = list(map(int, input().split()))
         if q == 0:
-            st.range_update(*param)
+            st.range_update(
+                param[0],
+                param[1],
+                (param[2] << 32) + param[3]
+            )
         else:
             v = st.range_query(*param)
             ans.append(v % MOD)
