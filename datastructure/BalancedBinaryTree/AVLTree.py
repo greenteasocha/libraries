@@ -1,3 +1,6 @@
+import random
+
+
 class Node():
     def __init__(self, val, height=0, bias=0, left=None, right=None):
         self.val = val
@@ -93,7 +96,7 @@ class AVLTree():
 
     def delete(self, x):
         # if x is not found, return False
-        self.root, res = self.delete(self.root, x)
+        self.root, res = self._delete(self.root, x)
         return res
 
     def _delete(self, node, x):
@@ -103,7 +106,7 @@ class AVLTree():
             else:
                 l, res = self._delete(node.left, x)
                 node.left = l
-                res = false
+                res = False
 
         elif node.val < x:
             if not node.right:
@@ -114,10 +117,14 @@ class AVLTree():
 
         elif node.val == x:
             if not node.left:
-                return node.right
+                return node.right, True
+            else:
+                l, val = self._promote(node.left)
+                res = True
+                node.val = val
 
         self._set_height(node)
-        return self._valanced(node)
+        return self._valanced(node), res
 
     def _promote(self, node):
         # find and promote max value of subtree
@@ -125,11 +132,11 @@ class AVLTree():
             return node.left, node.val
 
         else:
-            r, res = self._promote(node.right)
+            r, val_pro = self._promote(node.right)
             node.right = r
 
             self._set_height(node)
-            return self._valanced(node)
+            return self._valanced(node), val_pro
 
     def _rotateR(self, node):
         n = node
@@ -212,14 +219,47 @@ class AVLTree():
 
 def main():
     tr = AVLTree()
-    tr.add(10)
-    tr.add(5)
-    tr.add(12)
+    # for i in range(10):
+    #     tr.add(random.randint(1, 10))
+
+    # tr.show_all()
+
+    # delcn = 0
+    # for i in range(5000):
+    #     res = tr.delete(random.randint(1, 10))
+    #     if res:
+    #         delcn += 1
+
+    # tr.show_all()
+
+    # print(delcn)
     tr.add(1)
-    tr.add(8)
-    tr.show_all()
+    tr.add(2)
+    tr.add(3)
+    tr.add(4)
+    tr.add(5)
     tr.add(6)
+
     tr.show_all()
+    # return?
+
+    tr.delete(6)
+    tr.delete(5)
+    tr.delete(3)
+    tr.show_all()
+    return
+
+    tr.delete()
+    tr.delete()
+
+    # tr.add(10)
+    # tr.add(5)
+    # tr.add(12)
+    # tr.add(1)
+    # tr.add(8)
+    # tr.show_all()
+    # tr.add(6)
+    # tr.show_all()
     return
 
 
