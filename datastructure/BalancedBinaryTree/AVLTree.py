@@ -68,30 +68,68 @@ class AVLTree():
         node.bias = node.hl - node.hr
 
     def _valanced(self, node):
+        # be sure that node properties(height/bias) are updated by set_height
         if -1 <= node.bias <= 1:
             return node
 
         elif node.bias == 2:
-            if node.left.bias == 1:
+            if node.left.bias in [0, 1]:
                 return self._rotateR(node)
             elif node.left.bias == -1:
                 return self._rotateLR(node)
             else:
-                assert 0, 'Invalid bias: ' + str(node.bias)
+                assert 0, 'Invalid subtree bias : ' + str(node.left.bias)
 
         elif node.bias == -2:
-            if node.right.bias == 1:
+            if node.right.bias in [-1, 0]:
                 return self._rotateL(node)
-            elif node.right.bias == -1:
+            elif node.right.bias == 1:
                 return self._rotateRL(node)
             else:
-                assert 0, 'Invalid bias: ' + str(node.bias)
+                assert 0, 'Invalid subtree bias : ' + str(node.right.bias)
 
         else:
-            assert 0, 'Invalid bias: ' + str(node.bias)
+            assert 0, 'Invalid bias : ' + str(node.bias)
 
     def delete(self, x):
-        pass
+        # if x is not found, return False
+        self.root, res = self.delete(self.root, x)
+        return res
+
+    def _delete(self, node, x):
+        if node.val > x:
+            if not node.left:
+                return node, False
+            else:
+                l, res = self._delete(node.left, x)
+                node.left = l
+                res = false
+
+        elif node.val < x:
+            if not node.right:
+                return node, False
+            else:
+                r, res = self._delete(node.right, x)
+                node.right = r
+
+        elif node.val == x:
+            if not node.left:
+                return node.right
+
+        self._set_height(node)
+        return self._valanced(node)
+
+    def _promote(self, node):
+        # find and promote max value of subtree
+        if not node.right:  # max
+            return node.left, node.val
+
+        else:
+            r, res = self._promote(node.right)
+            node.right = r
+
+            self._set_height(node)
+            return self._valanced(node)
 
     def _rotateR(self, node):
         n = node
