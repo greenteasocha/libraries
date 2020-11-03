@@ -2,10 +2,11 @@ import random
 
 
 class Node():
-    def __init__(self, val, height=0, bias=0, left=None, right=None):
+    def __init__(self, val, height=0, bias=0, size=1, left=None, right=None):
         self.val = val
         self.height = height
         self.bias = bias
+        self.size = size
         self.left = left
         self.right = right
 
@@ -59,40 +60,8 @@ class AVLTree():
             assert 0
 
         # balance check
-        self._set_height(node)
+        self._update_property(node)
         return self._valanced(node)
-
-    def _set_height(self, node):
-        # call this when either of children is chenged
-        node.hl = 0 if not node.left else node.left.height + 1
-        node.hr = 0 if not node.right else node.right.height + 1
-
-        node.height = max(node.hl, node.hr)
-        node.bias = node.hl - node.hr
-
-    def _valanced(self, node):
-        # be sure that node properties(height/bias) are updated by set_height
-        if -1 <= node.bias <= 1:
-            return node
-
-        elif node.bias == 2:
-            if node.left.bias in [0, 1]:
-                return self._rotateR(node)
-            elif node.left.bias == -1:
-                return self._rotateLR(node)
-            else:
-                assert 0, 'Invalid subtree bias : ' + str(node.left.bias)
-
-        elif node.bias == -2:
-            if node.right.bias in [-1, 0]:
-                return self._rotateL(node)
-            elif node.right.bias == 1:
-                return self._rotateRL(node)
-            else:
-                assert 0, 'Invalid subtree bias : ' + str(node.right.bias)
-
-        else:
-            assert 0, 'Invalid bias : ' + str(node.bias)
 
     def delete(self, x):
         # if x is not found, return False
@@ -123,8 +92,26 @@ class AVLTree():
                 res = True
                 node.val = val
 
-        self._set_height(node)
+        self._update_property(node)
         return self._valanced(node), res
+
+    def kth(self, k):
+        # k-th smallest value
+        if self.root.size < k:
+            return False
+
+        return self._kth(self.root, k)
+
+    def _kth(self, node, k):
+        sl = 0 if not node.left else node.left.size
+        if sl == k - 1:
+            return node.val
+
+        elif sl > k - 1:
+            return self._kth(node.left, k)
+
+        else:
+            return self._kth(node.right, k - sl - 1)
 
     def _promote(self, node):
         # find and promote max value of subtree
@@ -135,8 +122,44 @@ class AVLTree():
             r, val_pro = self._promote(node.right)
             node.right = r
 
-            self._set_height(node)
+            self._update_property(node)
             return self._valanced(node), val_pro
+
+    def _update_property(self, node):
+        # call this when either of children are changed
+        hl = 0 if not node.left else node.left.height + 1
+        hr = 0 if not node.right else node.right.height + 1
+
+        sl = 0 if not node.left else node.left.size
+        sr = 0 if not node.right else node.right.size
+
+        node.height = max(hl, hr)
+        node.bias = hl - hr
+        node.size = sl + sr + 1
+
+    def _valanced(self, node):
+        # be sure that node properties(height/bias) are updated by update_property
+        if -1 <= node.bias <= 1:
+            return node
+
+        elif node.bias == 2:
+            if node.left.bias in [0, 1]:
+                return self._rotateR(node)
+            elif node.left.bias == -1:
+                return self._rotateLR(node)
+            else:
+                assert 0, 'Invalid subtree bias : ' + str(node.left.bias)
+
+        elif node.bias == -2:
+            if node.right.bias in [-1, 0]:
+                return self._rotateL(node)
+            elif node.right.bias == 1:
+                return self._rotateRL(node)
+            else:
+                assert 0, 'Invalid subtree bias : ' + str(node.right.bias)
+
+        else:
+            assert 0, 'Invalid bias : ' + str(node.bias)
 
     def _rotateR(self, node):
         n = node
@@ -146,8 +169,8 @@ class AVLTree():
         l.right = n
         n.left = lr
 
-        self._set_height(n)
-        self._set_height(l)
+        self._update_property(n)
+        self._update_property(l)
 
         return l
 
@@ -163,9 +186,9 @@ class AVLTree():
         lr.left = l
         lr.right = n
 
-        self._set_height(n)
-        self._set_height(l)
-        self._set_height(lr)
+        self._update_property(n)
+        self._update_property(l)
+        self._update_property(lr)
 
         return lr
 
@@ -177,8 +200,8 @@ class AVLTree():
         r.left = n
         n.right = rl
 
-        self._set_height(n)
-        self._set_height(r)
+        self._update_property(n)
+        self._update_property(r)
 
         return r
 
@@ -194,9 +217,9 @@ class AVLTree():
         rl.right = r
         rl.left = n
 
-        self._set_height(n)
-        self._set_height(r)
-        self._set_height(rl)
+        self._update_property(n)
+        self._update_property(r)
+        self._update_property(rl)
 
         return rl
 
@@ -219,47 +242,15 @@ class AVLTree():
 
 def main():
     tr = AVLTree()
-    # for i in range(10):
-    #     tr.add(random.randint(1, 10))
-
-    # tr.show_all()
-
-    # delcn = 0
-    # for i in range(5000):
-    #     res = tr.delete(random.randint(1, 10))
-    #     if res:
-    #         delcn += 1
-
-    # tr.show_all()
-
-    # print(delcn)
-    tr.add(1)
-    tr.add(2)
-    tr.add(3)
-    tr.add(4)
-    tr.add(5)
-    tr.add(6)
+    tr.add(11)
+    tr.add(29)
+    tr.add(89)
 
     tr.show_all()
-    # return?
-
-    tr.delete(6)
-    tr.delete(5)
-    tr.delete(3)
+    ans = tr.kth(2)
+    print(ans)
+    tr.delete(ans)
     tr.show_all()
-    return
-
-    tr.delete()
-    tr.delete()
-
-    # tr.add(10)
-    # tr.add(5)
-    # tr.add(12)
-    # tr.add(1)
-    # tr.add(8)
-    # tr.show_all()
-    # tr.add(6)
-    # tr.show_all()
     return
 
 
