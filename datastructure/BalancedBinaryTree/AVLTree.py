@@ -91,6 +91,7 @@ class AVLTree():
                 l, val = self._promote(node.left)
                 res = True
                 node.val = val
+                node.left = l
 
         self._update_property(node)
         return self._valanced(node), res
