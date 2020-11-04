@@ -1,5 +1,13 @@
 import random
-INF = 1 << 32 - 1
+import sys
+input = sys.stdin.readline
+def getS(): return input().strip()
+def getN(): return int(input())
+def getList(): return list(map(int, input().split()))
+def getZList(): return [int(x) - 1 for x in input().split()]
+
+
+INF = float("inf")
 
 
 class Node():
@@ -83,9 +91,6 @@ class AVLTree():
         self.root = node_child
         return
 
-    def deleter(self, x):
-        self.root = self._delete(self.root, x)
-
     def delete(self, val):
         node_hist = []
         side_hist = []  # left if side == 1 else right
@@ -110,7 +115,11 @@ class AVLTree():
 
             elif val == node_current.val:
                 if node_current.left:
-                    node_child = self._promote(node_current)
+                    l, promoted_val = self._promote(node_current.left)
+                    node_current.left = l
+                    node_current.val = promoted_val
+                    self._update_property(node_current)
+                    node_child = self._valanced(node_current)
                 else:
                     node_child = node_current.right
                 break
@@ -139,6 +148,7 @@ class AVLTree():
         while True:
             if not node_current.right:
                 node_child = node_current.left
+                ret_val = node_current.val
                 break
 
             else:
@@ -152,7 +162,7 @@ class AVLTree():
             self._update_property(node_parent)
             node_child = self._valanced(node_parent)
 
-        return node_child
+        return node_child, ret_val
 
     def _promoter(self, node):
         # find and promote max value of subtree
@@ -187,8 +197,8 @@ class AVLTree():
 
     def _update_property(self, node):
         # call this when either of children are changed
-        hl = node.left.height if node.left else 0
-        hr = node.right.height if node.right else 0
+        hl = node.left.height if node.left else -1
+        hr = node.right.height if node.right else -1
 
         sl = node.left.size if node.left else 0
         sr = node.right.size if node.right else 0
@@ -305,25 +315,20 @@ class AVLTree():
 
 def main():
     tr = AVLTree()
-    for i in range(1, 17):
-        tr.add(i)
-    # tr.add(11)
-    # tr.add(29)
-    # tr.add(89)
-    # tr.add(99)
-    for i in range(1, 8):
-        tr.delete(i)
-
-    tr.show_all()
-
-    for i in range(13, 20):
-        tr.delete(i)
-
-    tr.show_all()
-    ans = tr.kth(2)
-    print(ans)
-    # tr.delete(ans)
+    # for i in range(20):
+    #     tr.add(random.randint(1, 100))
     # tr.show_all()
+
+    q = getN()
+    for i in range(q):
+        a, b = getList()
+        if a == 1:
+            tr.add(b)
+        else:
+            ans = tr.kth(b)
+            print(ans)
+            tr.delete(ans)
+
     return
 
 
