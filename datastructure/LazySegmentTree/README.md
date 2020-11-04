@@ -25,12 +25,16 @@
 - 参考
 https://opt-cp.com/cp/lazysegtree-practice/ 他、色々
 
-## 実装におよび参考にした物
+## 実装に当たって参考にした物
 - https://maspypy.com/segment-tree-%E3%81%AE%E3%81%8A%E5%8B%89%E5%BC%B72
 - https://smijake3.hatenablog.com/entry/2018/11/03/100133
 - https://tsutaj.hatenablog.com/entry/2017/03/30/224339
 
+<<<<<<< HEAD
 他、yosupo judgeの提出一覧などq
+=======
+他、yosupo judge(Range Affine Range Sum)の AC一覧など 色々
+>>>>>>> fa164848ad1f46fa63acdc757e35e7eb5c7f2b29
 
 ## がんばった
 非再帰、抽象化をした
