@@ -39,13 +39,6 @@ class AVLTree():
         else:
             assert 0
 
-    def addr(self, x):
-        if not self.root:
-            self.root = Node(x)
-            return
-
-        self.root = self._add(self.root, Node(x))
-
     def add(self, val):
         if not self.root:
             self.root = Node(val)
@@ -72,7 +65,6 @@ class AVLTree():
                     break
 
         node_child = Node(val)
-        print(node_hist)
 
         while node_hist:
             node_parent = node_hist.pop()
@@ -89,53 +81,90 @@ class AVLTree():
             node_child = self._valanced(node_parent)
 
         self.root = node_child
+        return
 
-    def _addr(self, node, target_node):
-        if target_node.val <= node.val:
-            if node.left:
-                node.left = self._add(node.left, target_node)
-            else:
-                node.left = target_node
-        elif target_node.val > node.val:
-            if node.right:
-                node.right = self._add(node.right, target_node)
-            else:
-                node.right = target_node
-        else:
-            assert 0
-
-        # balance check
-        self._update_property(node)
-        return self._valanced(node)
-
-    def delete(self, x):
+    def deleter(self, x):
         self.root = self._delete(self.root, x)
 
-    def _delete(self, node, x):
-        if node.val > x:
-            if not node.left:
-                return node
-            else:
-                l = self._delete(node.left, x)
-                node.left = l
+    def delete(self, val):
+        node_hist = []
+        side_hist = []  # left if side == 1 else right
 
-        elif node.val < x:
-            if not node.right:
-                return node
-            else:
-                r = self._delete(node.right, x)
-                node.right = r
+        node_current = self.root
+        while True:
+            if val < node_current.val:
+                node_hist.append(node_current)
+                side_hist.append(1)
+                if node_current.left:
+                    node_current = node_current.left
+                else:
+                    return
 
-        elif node.val == x:
-            if not node.left:
-                return node.right
-            else:
-                l, val = self._promote(node.left)
-                node.val = val
-                node.left = l
+            elif val > node_current.val:
+                node_hist.append(node_current)
+                side_hist.append(-1)
+                if node_current.right:
+                    node_current = node_current.right
+                else:
+                    return
 
-        self._update_property(node)
-        return self._valanced(node)
+            elif val == node_current.val:
+                if node_current.left:
+                    node_child = self._promote(node_current)
+                else:
+                    node_child = node_current.right
+                break
+
+        while node_hist:
+            node_parent = node_hist.pop()
+            side = side_hist.pop()
+
+            if side == 1:
+                node_parent.left = node_child
+            elif side == -1:
+                node_parent.right = node_child
+            else:
+                assert 0, "Invalid side value (in add)"
+
+            self._update_property(node_parent)
+            node_child = self._valanced(node_parent)
+
+        self.root = node_child
+        return
+
+    def _promote(self, node):
+        node_hist = []
+
+        node_current = node
+        while True:
+            if not node_current.right:
+                node_child = node_current.left
+                break
+
+            else:
+                node_hist.append(node_current)
+                node_current = node_current.right
+
+        while node_hist:
+            node_parent = node_hist.pop()
+            node_parent.right = node_child
+
+            self._update_property(node_parent)
+            node_child = self._valanced(node_parent)
+
+        return node_child
+
+    def _promoter(self, node):
+        # find and promote max value of subtree
+        if not node.right:  # max
+            return node.left, node.val
+
+        else:
+            r, val_pro = self._promote(node.right)
+            node.right = r
+
+            self._update_property(node)
+            return self._valanced(node), val_pro
 
     def kth(self, k):
         # k-th smallest value
@@ -154,18 +183,6 @@ class AVLTree():
 
         else:
             return self._kth(node.right, k - sl - 1)
-
-    def _promote(self, node):
-        # find and promote max value of subtree
-        if not node.right:  # max
-            return node.left, node.val
-
-        else:
-            r, val_pro = self._promote(node.right)
-            node.right = r
-
-            self._update_property(node)
-            return self._valanced(node), val_pro
 
     def _update_property(self, node):
         # call this when either of children are changed
@@ -287,12 +304,19 @@ class AVLTree():
 
 def main():
     tr = AVLTree()
-    for i in range(100):
-        tr.add(random.randint(1, 1000))
-    tr.add(11)
-    tr.add(29)
-    tr.add(89)
-    tr.add(99)
+    for i in range(1, 17):
+        tr.add(i)
+    # tr.add(11)
+    # tr.add(29)
+    # tr.add(89)
+    # tr.add(99)
+    for i in range(1, 8):
+        tr.delete(i)
+
+    tr.show_all()
+
+    for i in range(13, 20):
+        tr.delete(i)
 
     tr.show_all()
     ans = tr.kth(2)
