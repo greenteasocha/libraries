@@ -39,14 +39,58 @@ class AVLTree():
         else:
             assert 0
 
-    def add(self, x):
+    def addr(self, x):
         if not self.root:
             self.root = Node(x)
             return
 
         self.root = self._add(self.root, Node(x))
 
-    def _add(self, node, target_node):
+    def add(self, val):
+        if not self.root:
+            self.root = Node(val)
+            return
+
+        node_hist = []
+        side_hist = []  # left if side == 1 else right
+
+        node_current = self.root
+        while True:
+            if val <= node_current.val:
+                node_hist.append(node_current)
+                side_hist.append(1)
+                if node_current.left:
+                    node_current = node_current.left
+                else:
+                    break
+            else:
+                node_hist.append(node_current)
+                side_hist.append(-1)
+                if node_current.right:
+                    node_current = node_current.right
+                else:
+                    break
+
+        node_child = Node(val)
+        print(node_hist)
+
+        while node_hist:
+            node_parent = node_hist.pop()
+            side = side_hist.pop()
+
+            if side == 1:
+                node_parent.left = node_child
+            elif side == -1:
+                node_parent.right = node_child
+            else:
+                assert 0, "Invalid side value (in add)"
+
+            self._update_property(node_parent)
+            node_child = self._valanced(node_parent)
+
+        self.root = node_child
+
+    def _addr(self, node, target_node):
         if target_node.val <= node.val:
             if node.left:
                 node.left = self._add(node.left, target_node)
@@ -243,15 +287,18 @@ class AVLTree():
 
 def main():
     tr = AVLTree()
+    for i in range(100):
+        tr.add(random.randint(1, 1000))
     tr.add(11)
     tr.add(29)
     tr.add(89)
+    tr.add(99)
 
     tr.show_all()
     ans = tr.kth(2)
     print(ans)
-    tr.delete(ans)
-    tr.show_all()
+    # tr.delete(ans)
+    # tr.show_all()
     return
 
 
