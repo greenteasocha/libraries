@@ -31,7 +31,11 @@ https://opt-cp.com/cp/lazysegtree-practice/ 他、色々
 - https://tsutaj.hatenablog.com/entry/2017/03/30/224339
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 他、yosupo judgeの提出一覧などq
+=======
+他、yosupo judge(Range Affine Range Sum)の AC一覧など 色々
+>>>>>>> fa164848ad1f46fa63acdc757e35e7eb5c7f2b29
 =======
 他、yosupo judge(Range Affine Range Sum)の AC一覧など 色々
 >>>>>>> fa164848ad1f46fa63acdc757e35e7eb5c7f2b29
