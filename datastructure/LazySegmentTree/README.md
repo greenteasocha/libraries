@@ -29,7 +29,8 @@ https://opt-cp.com/cp/lazysegtree-practice/ 他、色々
 - https://maspypy.com/segment-tree-%E3%81%AE%E3%81%8A%E5%8B%89%E5%BC%B72
 - https://smijake3.hatenablog.com/entry/2018/11/03/100133
 - https://tsutaj.hatenablog.com/entry/2017/03/30/224339
-他、色々
+
+他、yosupo judgeの提出一覧などq
 
 ## がんばった
 非再帰、抽象化をした
