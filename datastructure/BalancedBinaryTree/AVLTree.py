@@ -171,18 +171,19 @@ class AVLTree():
         if self.root.size < k:
             return INF
 
-        return self._kth(self.root, k)
+        node_current = self.root
 
-    def _kth(self, node, k):
-        sl = 0 if not node.left else node.left.size
-        if sl == k - 1:
-            return node.val
+        while True:
+            sl = 0 if not node_current.left else node_current.left.size
+            if sl == k - 1:
+                return node_current.val
 
-        elif sl > k - 1:
-            return self._kth(node.left, k)
+            elif sl > k - 1:
+                node_current = node_current.left
 
-        else:
-            return self._kth(node.right, k - sl - 1)
+            else:
+                k -= sl + 1
+                node_current = node_current.right
 
     def _update_property(self, node):
         # call this when either of children are changed
