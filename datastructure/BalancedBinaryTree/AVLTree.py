@@ -1,4 +1,5 @@
 import random
+INF = 1 << 32 - 1
 
 
 class Node():
@@ -64,42 +65,38 @@ class AVLTree():
         return self._valanced(node)
 
     def delete(self, x):
-        # if x is not found, return False
-        self.root, res = self._delete(self.root, x)
-        return res
+        self.root = self._delete(self.root, x)
 
     def _delete(self, node, x):
         if node.val > x:
             if not node.left:
-                return node, False
+                return node
             else:
-                l, res = self._delete(node.left, x)
+                l = self._delete(node.left, x)
                 node.left = l
-                res = False
 
         elif node.val < x:
             if not node.right:
-                return node, False
+                return node
             else:
-                r, res = self._delete(node.right, x)
+                r = self._delete(node.right, x)
                 node.right = r
 
         elif node.val == x:
             if not node.left:
-                return node.right, True
+                return node.right
             else:
                 l, val = self._promote(node.left)
-                res = True
                 node.val = val
                 node.left = l
 
         self._update_property(node)
-        return self._valanced(node), res
+        return self._valanced(node)
 
     def kth(self, k):
         # k-th smallest value
         if self.root.size < k:
-            return False
+            return INF
 
         return self._kth(self.root, k)
 
@@ -128,33 +125,36 @@ class AVLTree():
 
     def _update_property(self, node):
         # call this when either of children are changed
-        hl = 0 if not node.left else node.left.height + 1
-        hr = 0 if not node.right else node.right.height + 1
+        hl = node.left.height if node.left else 0
+        hr = node.right.height if node.right else 0
 
-        sl = 0 if not node.left else node.left.size
-        sr = 0 if not node.right else node.right.size
+        sl = node.left.size if node.left else 0
+        sr = node.right.size if node.right else 0
 
-        node.height = max(hl, hr)
+        node.height = max(hl, hr) + 1
         node.bias = hl - hr
         node.size = sl + sr + 1
 
     def _valanced(self, node):
         # be sure that node properties(height/bias) are updated by update_property
-        if -1 <= node.bias <= 1:
+        bias = node.bias
+        if -1 <= bias <= 1:
             return node
 
-        elif node.bias == 2:
-            if node.left.bias in [0, 1]:
+        elif bias == 2:
+            bias_l = node.left.bias
+            if bias_l == 0 or bias_l == 1:
                 return self._rotateR(node)
-            elif node.left.bias == -1:
+            elif bias_l == -1:
                 return self._rotateLR(node)
             else:
                 assert 0, 'Invalid subtree bias : ' + str(node.left.bias)
 
-        elif node.bias == -2:
-            if node.right.bias in [-1, 0]:
+        elif bias == -2:
+            bias_r = node.right.bias
+            if bias_r == -1 or bias_r == 0:
                 return self._rotateL(node)
-            elif node.right.bias == 1:
+            elif bias_r == 1:
                 return self._rotateRL(node)
             else:
                 assert 0, 'Invalid subtree bias : ' + str(node.right.bias)
