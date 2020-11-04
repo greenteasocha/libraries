@@ -164,18 +164,6 @@ class AVLTree():
 
         return node_child, ret_val
 
-    def _promoter(self, node):
-        # find and promote max value of subtree
-        if not node.right:  # max
-            return node.left, node.val
-
-        else:
-            r, val_pro = self._promote(node.right)
-            node.right = r
-
-            self._update_property(node)
-            return self._valanced(node), val_pro
-
     def kth(self, k):
         # k-th smallest value
         if self.root.size < k:
@@ -314,11 +302,8 @@ class AVLTree():
 
 
 def main():
+    # answer for https://atcoder.jp/contests/arc033/tasks/arc033_3
     tr = AVLTree()
-    # for i in range(20):
-    #     tr.add(random.randint(1, 100))
-    # tr.show_all()
-
     q = getN()
     for i in range(q):
         a, b = getList()
