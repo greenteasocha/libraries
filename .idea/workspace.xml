@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c7b229ec-dca8-447e-bdce-7f31fc87c15d" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/math/conv_with_FFT/conv_with_FFT.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tree_and_graph/SCC/scc.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tree_and_graph/SCC/testcase/in1" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tree_and_graph/SCC/testcase/in2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tree_and_graph/SCC/testcase/in3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tree_and_graph/SCC/scc.py" beforeDir="false" afterPath="$PROJECT_DIR$/tree_and_graph/SCC/scc.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -29,8 +25,8 @@
       <file leaf-file-name="scc.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tree_and_graph/SCC/scc.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="413">
-              <caret line="37" column="20" lean-forward="true" selection-end-line="115" selection-end-column="10" />
+            <state relative-caret-position="312">
+              <caret line="79" column="36" selection-start-line="79" selection-start-column="36" selection-end-line="79" selection-end-column="36" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -84,8 +80,8 @@
         <option value="$PROJECT_DIR$/math/conv_with_FFT/conv_with_FFT.py" />
         <option value="$PROJECT_DIR$/tree_and_graph/SCC/testcase/in1" />
         <option value="$PROJECT_DIR$/tree_and_graph/SCC/testcase/in2" />
-        <option value="$PROJECT_DIR$/tree_and_graph/SCC/scc.py" />
         <option value="$PROJECT_DIR$/tree_and_graph/SCC/testcase/in3" />
+        <option value="$PROJECT_DIR$/tree_and_graph/SCC/scc.py" />
       </list>
     </option>
   </component>
@@ -255,7 +251,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tree_and_graph/SCC/scc.py</url>
-          <line>33</line>
+          <line>34</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
@@ -327,8 +323,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/tree_and_graph/SCC/scc.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="413">
-          <caret line="37" column="20" lean-forward="true" selection-end-line="115" selection-end-column="10" />
+        <state relative-caret-position="312">
+          <caret line="79" column="36" selection-start-line="79" selection-start-column="36" selection-end-line="79" selection-end-column="36" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>

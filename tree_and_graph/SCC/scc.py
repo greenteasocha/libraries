@@ -77,6 +77,9 @@ class SCC():
 
 
 def main():
+    # submission for "Typical90 #21"
+    # https://atcoder.jp/contests/typical90/tasks/typical90_u
+
     n, m = getList()
     g = [[] for i in range(n)]
     for i in range(m):
@@ -95,11 +98,6 @@ def main():
 
     print(ans)
 
-    # print(len(scc.scc))
-    # for v_set in scc.scc:
-    #     # v = [x-1 for x in v_set]
-    #     print(len(v_set), end=" ")
-    #     print(*v_set)
 
 def ran(n):
     li = [i for i in range(n)]
