@@ -13,9 +13,7 @@ i回目の操作として
 
 ### 実装のメモ(はしりがき)
 
-![image1](https://user-images.githubusercontent.com/37926549/128643110-0b669b0d-fc9b-4ccd-b99c-63f25a323230.jpeg)  
-![image2](https://user-images.githubusercontent.com/37926549/128643112-3f8cc509-4f28-4c9a-b8a4-919829ca9e32.jpeg)  
-![image3](https://user-images.githubusercontent.com/37926549/128643114-da22f2b7-16ef-4f3d-8262-51284246269b.jpeg)  
+画像が大きいので末尾の備考欄を参照
 
 
 ### がんばった
@@ -43,3 +41,7 @@ https://honto.jp/netstore/pd-book_28387322.html
 ## verify 
 https://judge.yosupo.jp/submission/55585
 
+## 備考(調査、実装中のメモ)
+![image1](https://user-images.githubusercontent.com/37926549/128643110-0b669b0d-fc9b-4ccd-b99c-63f25a323230.jpeg)  
+![image2](https://user-images.githubusercontent.com/37926549/128643112-3f8cc509-4f28-4c9a-b8a4-919829ca9e32.jpeg)  
+![image3](https://user-images.githubusercontent.com/37926549/128643114-da22f2b7-16ef-4f3d-8262-51284246269b.jpeg)  
